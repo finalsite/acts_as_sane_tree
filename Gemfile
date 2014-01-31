@@ -1,6 +1,6 @@
 source :rubygems
 
-gem 'activerecord', '~> 3.1.0'
+gem 'activerecord', '~> 4.0.0'
 gem 'rake'
 gem 'minitest'
 gem 'pg', :platform => [:ruby, :mswin, :mingw]
