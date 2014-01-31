@@ -53,10 +53,13 @@ module ActsAsSaneTree
       self.class_eval do
         cattr_accessor :configuration
         
+        # we can't reference @configuration in the scope block, as it gets evaluated against other instances sometimes
+        config_order = @configuration[:order]
+
         has_many :children, 
+          #-> { order(config_order) },
           :class_name => @configuration[:class].name, 
           :foreign_key => @configuration[:foreign_key], 
-          :order => @configuration[:order], 
           :dependent => @configuration[:dependent]
         belongs_to :parent, 
           :class_name => @configuration[:class].name, 
