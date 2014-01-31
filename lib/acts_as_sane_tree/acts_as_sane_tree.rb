@@ -60,10 +60,12 @@ module ActsAsSaneTree
           #-> { order(config_order) },
           :class_name => @configuration[:class].name, 
           :foreign_key => @configuration[:foreign_key], 
-          :dependent => @configuration[:dependent]
+          :dependent => @configuration[:dependent],
+          :autosave => true
         belongs_to :parent, 
           :class_name => @configuration[:class].name, 
-          :foreign_key => @configuration[:foreign_key]
+          :foreign_key => @configuration[:foreign_key],
+          :touch => true
         if(@configuration[:parent_override])
           def parent
             self.class.where(:id => self.parent_id).first
