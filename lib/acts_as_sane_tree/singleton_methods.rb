@@ -144,7 +144,7 @@ module ActsAsSaneTree
       unless(raw)
         res = ActiveSupport::OrderedHash.new
         cache = ActiveSupport::OrderedHash.new
-        q.all.each do |item|
+        q.to_a.each do |item|
           res[item] = ActiveSupport::OrderedHash.new
           cache[item] = res[item]
         end

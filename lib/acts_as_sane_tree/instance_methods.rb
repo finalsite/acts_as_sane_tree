@@ -16,7 +16,7 @@ module ActsAsSaneTree
           JOIN #{self.class.configuration[:class].table_name} alias1 ON alias1.id = crumbs.parent_id
         ) SELECT * FROM crumbs WHERE crumbs.id != #{id}) as #{self.class.configuration[:class].table_name}"
       if(self.class.rails_3?)
-        self.class.configuration[:class].send(:with_exclusive_scope) do
+        self.class.configuration[:class].unscoped.scoping do
           self.class.configuration[:class].from(
             query
           ).order("#{self.class.configuration[:class].table_name}.depth DESC")
