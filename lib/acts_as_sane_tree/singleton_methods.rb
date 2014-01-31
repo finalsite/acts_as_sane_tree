@@ -53,22 +53,24 @@ module ActsAsSaneTree
       end
     end
 
-    # src:: Array of nodes
-    # chk:: Array of nodes
+    # src:: Array-ish of nodes
+    # chk:: Array-ish of nodes
     # Return all nodes that are within both chk and src
     def nodes_within(src, chk)
-      s = (src.is_a?(Array) ? src : [src]).map{|x|x.is_a?(ActiveRecord::Base) ? x.id : x.to_i}
-      c = (chk.is_a?(Array) ? chk : [chk]).map{|x|x.is_a?(ActiveRecord::Base) ? x.id : x.to_i}
-      if(s.empty? || c.empty?)
+      src_array = (src.respond_to?(:map) ? src : [src])
+      src_ids = src_array.map{|x|x.is_a?(ActiveRecord::Base) ? x.id : x.to_i}
+      chk_array = (chk.respond_to?(:map) ? chk : [chk])
+      check_ids = chk_array.map{|x|x.is_a?(ActiveRecord::Base) ? x.id : x.to_i}
+      if(src_ids.empty? || check_ids.empty?)
         nil
       else
         query = 
           "(WITH RECURSIVE crumbs AS (
-            SELECT #{configuration[:class].table_name}.*, 0 AS depth FROM #{configuration[:class].table_name} WHERE id in (#{s.join(', ')})
+            SELECT #{configuration[:class].table_name}.*, 0 AS depth FROM #{configuration[:class].table_name} WHERE id in (#{src_ids.join(', ')})
             UNION ALL
             SELECT alias1.*, crumbs.depth + 1 FROM crumbs JOIN #{configuration[:class].table_name} alias1 on alias1.parent_id = crumbs.id
             #{configuration[:max_depth] ? "WHERE crumbs.depth + 1 < #{configuration[:max_depth].to_i}" : ''}
-          ) SELECT * FROM crumbs WHERE id in (#{c.join(', ')})) as #{configuration[:class].table_name}"
+          ) SELECT * FROM crumbs WHERE id in (#{check_ids.join(', ')})) as #{configuration[:class].table_name}"
         if(rails_3?)
           configuration[:class].from(query)
         else
