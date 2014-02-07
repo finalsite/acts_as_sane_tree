@@ -142,23 +142,44 @@ module ActsAsSaneTree
         q = q.scoped(scope(:find))
       end
       unless(raw)
-        res = ActiveSupport::OrderedHash.new
+        result = ActiveSupport::OrderedHash.new
         cache = ActiveSupport::OrderedHash.new
-        q.to_a.each do |item|
-          res[item] = ActiveSupport::OrderedHash.new
-          cache[item] = res[item]
+        nodes = q.to_a
+        nodes.each do |node|
+          result[node] = ActiveSupport::OrderedHash.new
+          cache[node] = result[node]
         end
-        cache.each_pair do |item, values|
-          if(cache[item.parent])
-            cache[item.parent][item] = values
-            res.delete(item)
+        node_index = nodes.index_by(&:id)
+        cache.each_pair do |node, children_hash|
+          parent = get_parent(node, node_index)
+          if(cache[parent])
+            cache[parent][node] = children_hash
+            result.delete(node)
           end
         end
-        res
+        result
       else
         q
       end
     end
+
+    private
+
+    # The parent record is usually part of the result set, but the "belongs_to :parent" association doesn't know this.
+    # To avoid triggering a lazy-load, we will look up the parent ourselves.
+    def get_parent(node, node_index)
+      return nil if node.parent_id.nil?
+
+      parent = node_index[node.parent_id]
+      unless parent
+        puts "falling back to lazy-load for parent of #{node.inspect}"
+        parent = node.parent
+      end
+      parent
+    end
+
+    public
+
     alias_method :nodes_and_descendents, :nodes_and_descendants
 
   end
