@@ -47,14 +47,15 @@ NodeSetup.up
 nodes = []
 
 3.times do |i|
-  nodes[i] = []
-  parent = Node.create(:name => "root_#{i}")
+  tree = []
+  root = Node.create(:name => "root_#{i}")
   50.times do |j|
     node = Node.new(:name => "node_#{i}_#{j}")
-    _parent = nodes[i][rand(nodes[i].size)] || parent
-    node.parent_id = _parent.id
+    parent = tree[rand(tree.size)] || root
+    node.parent_id = parent.id
     node.save
-    nodes[i] << node
+    tree << node
   end
+  nodes[i] = tree
 end
 
