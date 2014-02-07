@@ -57,7 +57,7 @@ module ActsAsSaneTree
         config_order = @configuration[:order]
 
         has_many :children, 
-          #-> { order(config_order) },
+          -> { order(config_order) },
           :class_name => @configuration[:class].name, 
           :foreign_key => @configuration[:foreign_key], 
           :dependent => @configuration[:dependent]

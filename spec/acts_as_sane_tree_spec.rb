@@ -67,6 +67,10 @@ describe ActsAsSaneTree do
         assert_equal Node.find(:first, :conditions => {:parent_id => parent.id}, :order => :id), parent.children.find(:first, :order => :id)
       end
     end
+    it "should respect order config" do
+      parent = Node.where(:name => 'root_static').first
+      assert_equal Node.where(:parent_id => parent.id).order(:position).first, parent.children.first
+    end
   end
 
   describe "when requesting ancestors" do
