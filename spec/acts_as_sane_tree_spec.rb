@@ -154,6 +154,38 @@ describe ActsAsSaneTree do
     end
   end
 
+  describe "when requesting find_with_descendants" do
+    before do
+      @root = Node.roots.first
+    end
+
+    it "should return the root" do
+      assert_equal @root, Node.find_with_descendants(@root.id)
+    end
+  end
+
+
+  describe "when requesting preload_descendants!" do
+    before do
+      @root = Node.roots.first
+    end
+
+    it "should return the root" do
+      assert_equal @root, @root.preload_descendants!
+    end
+
+    it "should ensure children are loaded" do
+      @root.preload_descendants!
+      assert @root.children.loaded?
+    end
+
+    it "should ensure children's parent is loaded" do
+      @root.preload_descendants!
+      parent = @root.children[0].association(:parent)
+      assert parent.loaded?
+    end
+  end
+
   describe "when using an acts_as_sane_tree instance" do
     before do
       @root = Node.roots.first

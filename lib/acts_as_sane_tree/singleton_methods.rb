@@ -182,5 +182,34 @@ module ActsAsSaneTree
 
     alias_method :nodes_and_descendents, :nodes_and_descendants
 
+    # args:: ActiveRecord model or ID
+    # Returns provided nodes plus all descendants of provided nodes in nested Hash where keys are nodes and values are children
+    def find_with_descendants(id)
+      hash = nodes_and_descendants(id)
+      root = hash.keys.first
+      recursive_init(root, hash[root])
+      root
+    end
+
+    def preload_descendants(root)
+      hash = nodes_and_descendants(root)
+      recursive_init(root, hash[root])
+      root
+    end
+
+    private
+
+    def recursive_init(node, children_hash)
+      initialize(children_hash.keys, node)
+      children_hash.each do |child, grandchildren_hash|
+        child.association(:parent).target = node
+        recursive_init(child, grandchildren_hash)
+      end
+    end
+
+    def initialize(children_array, parent)
+      parent.association(:children).target = children_array
+    end
+
   end
 end

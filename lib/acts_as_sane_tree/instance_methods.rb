@@ -95,4 +95,8 @@ module ActsAsSaneTree
       ActiveRecord::Base.connection.select_all(query).first.try(:[], 'level').try(:to_i)
     end
   end
+
+  def preload_descendants!
+    self.class.configuration[:class].preload_descendants(self)
+  end
 end
